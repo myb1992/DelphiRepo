@@ -1,0 +1,160 @@
+unit uFrmCadastroPai;
+
+interface
+
+uses
+uDM, uBiblioteca
+
+type
+TfrmCadastroPrincipal = class(TForm)
+procedure setNewSql (codigo: integer);
+procedure setRecord (codigo: integer; tipo: TNav);
+
+private
+{private declarations}
+
+public
+sqlOriginal : String;
+function getNameTable (sql: String) : String;
+{ public declarations}
+end;
+
+var
+frmCadastroPrincipal: TfrmCadastroPrincipal;
+
+implementation
+{$R *.dfm}
+
+procedure TfrmCadastroPrincipal.btnCancelarClick(Sender: TObject);
+begin
+if QueryCadastro.State in [dsEdit, dsInsert] then
+begin
+QueryCadastro.Cancel;
+end;
+end;
+
+procedure TfrmCadastroPrincipal.btnExcluirClick(Sender: TObject);
+begin
+if MessageDlg('Tem certeza que deseja excluir o registro?', mtWarning, [mbNo, mbYes], 0) = mrYes then begin
+QueryCadastro.Delete;
+end;
+end;
+
+procedure TfrmCadastroPrincipal.btnGravarClick(Sender: TObject);
+begin
+if QueryCadastro.State in [dsEdit, dsInsert] then
+begin
+QueryCadastro.Post;
+MessageDls('Cadastro com sucesso!', mtInformation, [mbOK], 0);
+end;
+end;
+
+procedure TfrmCadastroPrincipal.btnNovoClick(Sender: TObject);
+begin
+if not QueryCadastro.Active then begin
+Self.setRecord(0, TNil);
+end;
+
+if not (QueryCadastro.State in [dsEdit, dsInsert]) then
+begin
+QueryCadastro.Insert;
+end;
+end;
+
+procedure TfrmCadastroPrincipal.btnSairClick(Sender: TObject);
+begin
+self.Close;
+end;
+
+procedure TfrmCadastroPrincipal.FormCreate(Sender: TObject);
+begin
+sqlOriginal := QueryCadastro.SQL.Text;
+QueryCadastro.Open();
+end;
+
+function TfrmCadastroPrincipal.getNameTable(sql : String) : String;
+var
+vSql: TStringList;
+begin
+vSql:= TStringList.Create;
+try
+vSql.Delimiter := ' ';
+vSql.StrictDelimiter := True;
+vSql.DelimitedText := Copy(sql, Pos('FROM', UpperCase(sql)), Length(sql));
+
+Result := Trim(vSql.Strings[1]);
+finally
+vSql.Free;
+end;
+end;
+
+procedure TfrmCadastroPrincipal.setNewSql(codigo: integer);
+var
+sqlNovo: String;
+begin
+QueryCadastro.Close;
+QueryCadastro.SQL.Clear;
+sqlNovo := 'SELECT * FROM (' + sqlOriginal + ') WHERE ID_(' + getNameTable(sqlOriginal) + ') =: ID_(' + getNameTable(sqlOriginal);
+QueryCadastro.SQL.Add('AND DT_EXCLUIDO IS NULL');
+QueryCadastro.ParamByName('ID_' + getNameTable(sqlOriginal)).AsInteger := codigo;
+QueryCadastro.Open();
+end;
+
+procedure TfrmCadastroPrincipal.setRecord(codigo: integer; tipo: TNav);
+var
+vID: String;
+begin
+
+vID := 'ID_'+ getNameTable(sqlOriginal);
+
+if codigo > 0 then begin
+setNewSql(codigo);
+end
+else
+if tipo = TFirst then begin
+QueryCodigo.Close;
+QueryCodigo.SQL.Clear;
+QueryCodigo.SQL.Add('SELECT MIN('+ vID +') FROM '+getNameTable(sqlOriginal));
+QueryCodigo.Open();
+
+codigo := QueryCodigo.FieldByName(vID).AsInteger;
+
+setNewSql(codigo);
+end
+else
+if tipo = TLast then begin
+QueryCodigo.Close;
+QueryCodigo.SQL.Clear;
+QueryCodigo.SQL.Add('SELECT MAX('+ vID +') FROM '+getNameTable(sqlOriginal));
+QueryCodigo.Open();
+
+codigo := QueryCodigo.FieldByName(vID).AsInteger;
+
+setNewSql(codigo);
+end
+else
+if tipo = TNext then begin
+codigo := QueryCodigo.FieldByName(vID).AsInteger;
+QueryCodigo.Close;
+QueryCodigo.SQL.Clear;
+QueryCodigo.SQL.Add('SELECT MIN('+ vID +')FROM'+ getNameTable(sqlOriginal));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

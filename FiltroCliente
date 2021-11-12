@@ -1,0 +1,116 @@
+unit uFrmFiltroCliente;
+
+interface
+
+uses
+uBiblioteca, uFrmCadastroCliente, uDM, uLookUp;
+
+type
+TFrmFiltroCliente = class(TFrmFiltroPadrao)
+procedure FiltrarClick(Sender: TObject);
+procedure Filtrar;
+procedure btnNovoClick(Sender: TObject);
+procedure btnVisuClick(Sender: TObject);
+procedure ValidaQueryVazia;
+procedure FormShow(Sender: TObject);
+
+private
+{ Private declarations }
+public
+{ public declarations }
+end;
+
+var
+FrmFiltroCliente: TFrmFiltroCliente;
+
+implementtation
+{$R *.dfm}
+
+{ TFrmFiltroCliente }
+
+procedure TFrmFiltroCliente.btnNovoClick(Sender: TObject);
+begin
+inherited;
+FrmCadastroCliente := TFrmCadastroCliente.Create(Self);
+try
+FrmCadastroCliente.QueryCadastro.Insert;
+FrmCadastroCliente.ShowModal;
+finally
+FreeAndNil(FrmCadastroCliente);
+end;
+end;
+
+procedure TFrmFiltroCliente.btnVisuClick(Sender: TObject);
+begin
+inherited;
+ValidaQueryVazia;
+FrmCadastroCliente := TFrmCadastroCliente.Create(Self);
+try
+FrmCadastroCliente.setRecord(QueryFiltroID_ADDCLIENTE.AsInteger, TNil);
+FrmCadastroCliente.ShowModal;
+finally
+FreeAndNil(FrmCadastroCliente);
+end;
+end;
+
+procedure TFrmFiltroCliente.Filtrar;
+begin
+QueryFiltro.SQL.Clear;
+QueryFiltro.SQL.Add('SELECT * FROM AACLIENTE');
+QueryFiltro.SQL.Add('WHERE 1=1');
+if Trim(edtFiltro.Text) <>'' then
+begin
+QueryFiltro.SQL.Add('AND UPPER(TRIM(NOME)) LIKE '+ QuotedStr('%'+UpperCase(Trim(edtFiltro.Text))+'%'));
+end;
+if Trim(edtFantasia.Text) <> '' then
+begin
+QueryFiltro.SQL.Add('AND UPPER(TRIM(FANTASIA)) LIKE '+QuotedStr('%'+UpperCase(Trim(edtFantasia.Text))+'%'));
+end;
+if Trim(edtCPF.Text) <> '' then
+begin
+QueryFiltro.SQL.Add('AND TRIM(REPLACE(REPLACE(REPLACE(CPF_CNPJ, ''.'',''-'',''''), ''/'','''')) LIKE '+QuotedStr('%'+Trim(edtCPF.Text)+'%'));
+end;
+if StrToIntDef(edtCodigo.Text, 0) > 0 then
+begin
+QueryFiltro.SQL.Add('AND ID_CLIENTE LIKE '+QuotedStr('%'+Trim(edtCodigo.Text)+'%'));
+end;
+QueryFiltro.Open();
+QueryFiltro.FetchAll;
+end;
+
+procedure TFrmFiltroCliente.FiltrarClick(Sender: TObject);
+begin
+inherited;
+Filtrar;
+end;
+
+procedure TFrmFiltroCliente.FormShow(Sender: TObject);
+begin
+ inherited;
+ QueryFiltro.Open();
+ end;
+ 
+ procedure TFrmFiltroCliente.ValidaQueryVazia;
+ begin
+ if QueryFiltro.IsEmpty then
+ Abort;
+ end;
+ end.
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

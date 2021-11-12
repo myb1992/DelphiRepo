@@ -138,6 +138,54 @@ codigo := QueryCodigo.FieldByName(vID).AsInteger;
 QueryCodigo.Close;
 QueryCodigo.SQL.Clear;
 QueryCodigo.SQL.Add('SELECT MIN('+ vID +')FROM'+ getNameTable(sqlOriginal));
+QueryCodigo.Open();
+codigo := QueryCodigo.FieldByName(vID).AsInteger;
+setNewSql(codigo);
+end
+else
+if tipo = TPrior then begin
+codigo := QueryCadastro.FieldByName(vID).AsInteger;
+QueryCodigo.Close;
+QueryCodigo.SQL.Clear;
+QueryCodigo.SQL.Add('SELECT MAX('+ vID +')FROM '+ getNameTable(sqlOriginal) + ' WHERE ' + vID + ' < ' + IntToStr(codigo));
+QueryCodigo.Open();
+codigo := QueryCodigo.FieldByName(vID).AsInteger;
+setNewSql(codigo);
+end
+else
+if tipo = TNil then begin
+setNewSql(0);
+end;
+end;
+
+procedure TfrmCadastroPadrao.SpeedButton1Click(Sender: TObject);
+begin
+QueryCadastro.First;
+//setRecord(0, TFirst);
+end;
+
+procedure TfrmCadastroPadrao.SpeedButton2Click(Sender: TObject);
+begin
+QueryCadastro.Prior;
+//setRecord(0, TPrior);
+end;
+
+procedure TfrmCadastroPadrao.SpeedButton3Click(Sender: TObject);
+begin
+QueryCadastro.Next;
+//setRecord(0, TNext);
+end;
+
+procedure TfrmCadastroParao.SpeedButton4Click(Sender: TObject);
+begin
+QueryCadastro.Last;
+//setRecord(0, TLast);
+end;
+end.
+
+
+
+
 
 
 

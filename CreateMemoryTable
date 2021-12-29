@@ -1,0 +1,14 @@
+procedure CreateMemoryTable;
+
+
+procedure FormName.CreateMemoryTable;
+begin
+mmtname.CreateDataSet;
+mmtname.Append;
+mmtnameID_NAME.Value:= (Value if Integer);
+mmtnameDESCRIPTION.AsString:= 'blablabla';
+mmtname.Post;
+mmtname.Append;
+
+//if using a 3 layer application, insert this code on the Model form.
+//mmt stands for TFDMemTable. on the FieldDefs property, create 2 fields. One for the ID, the other for the description. Remember to set the correct data for each field. Ie: ID = Integer, Description = String.
